@@ -7,7 +7,8 @@ class CompanyApi extends React.Component {
   state = {
     results:[],
     from:0,
-    loading: false
+    loading: false,
+    total: undefined
   }
   componentDidMount() {
     this.getPosts();
@@ -19,11 +20,12 @@ class CompanyApi extends React.Component {
     
   }
   getPosts = async () => {
-    const {results,loading,from} = this.state;
+    const {results,loading,from,total} = this.state;
     if (loading) {
       return
     }
     this.setState({ loading: true });
+    if (total === undefined || results.length < total) {
     const val = await fetch('https://tracxn.com/api/2.2/companies', {
       method: "POST",
       headers: {
@@ -40,12 +42,12 @@ class CompanyApi extends React.Component {
       })
     })
     const response = await val.json();
-    this.setState({results:results.concat(response.result),from: from+20, loading: false});
-    console.log(response.result);
-  }
+    const totalCount = response.total_count;
+    this.setState({total: totalCount,results:results.concat(response.result),from: from+20, loading: false});
+  }}
 
   render() {
-    const {results}=this.state;
+    const {results,total}=this.state;
     return (<div>
       <table id="users" border='2'>
             <thead>
@@ -69,13 +71,9 @@ class CompanyApi extends React.Component {
               )}
             </tbody>
           </table>
+          {}
       </div>);
 
   }
 }
-
-
-
-
-
 ReactDOM.render(<CompanyApi />, document.getElementById('app'));
