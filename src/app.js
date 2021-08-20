@@ -76,4 +76,4 @@ class CompanyApi extends React.Component {
 
   }
 }
-ReactDOM.render(<Table />, document.getElementById('app'));
+ReactDOM.render(<CompanyApi />, document.getElementById('app'));
