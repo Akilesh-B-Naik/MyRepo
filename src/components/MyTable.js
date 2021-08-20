@@ -8,7 +8,7 @@ class Table extends React.Component {
       {
         users: [],
         total: undefined,
-        pageNo: 1,
+        pageNo: 0,
         loading: false
       }
   
@@ -30,16 +30,22 @@ class Table extends React.Component {
       }
       this.setState({ loading: true })
       if (total === undefined || users.length < total) {
+        try{
         const val = await fetch('https://jsonplaceholder.typicode.com/posts?_page=' + pageNo)
         const response = await val.json();
         const totalCount = val.headers.get("x-total-count");
-  
         this.setState({
           total: totalCount,
           pageNo: pageNo + 1,
           users: users.concat(response),
           loading: false
         })
+        }
+        catch(error)
+        {
+          console.log(error.message);
+        }
+        
       }
     }
     render() {
