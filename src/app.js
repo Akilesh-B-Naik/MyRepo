@@ -2,11 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'normalize.css/normalize.css'
 import './styles/Styles.scss';
+import Table from './components/MyTable';
 
 class CompanyApi extends React.Component {
   state = {
     results:[],
-    from:0,
     loading: false,
     total: undefined
   }
@@ -20,7 +20,7 @@ class CompanyApi extends React.Component {
     
   }
   getPosts = async () => {
-    const {results,loading,from,total} = this.state;
+    const {results,loading,total} = this.state;
     if (loading) {
       return
     }
@@ -37,13 +37,13 @@ class CompanyApi extends React.Component {
         "filter": {
           "country": ["India"],
         },
-        "from":from,
+        "from":results.length,
         "size":20
       })
     })
-    const response = await val.json();
-    const totalCount = response.total_count;
-    this.setState({total: totalCount,results:results.concat(response.result),from: from+20, loading: false});
+  
+    const {total_count,result}= await val.json();
+    this.setState({total: total_count,results:results.concat(result), loading: false});
   }}
 
   render() {
@@ -60,13 +60,13 @@ class CompanyApi extends React.Component {
               </tr>
               </thead>
               <tbody>
-              {results.map((result,index)=>
+              {results.map(({id,name,domain,location:{state}={}},index)=>
                 <tr key={index} >
                   <td>{index+1}</td>
-                  <td>{result.id}</td>
-                  <td>{result.name}</td>
-                  <td>{result.domain}</td>
-                  <td>{result.location.state}</td>
+                  <td>{id}</td>
+                  <td>{name}</td>
+                  <td>{domain}</td>
+                  <td>{state}</td>
                 </tr>
               )}
             </tbody>
@@ -76,4 +76,4 @@ class CompanyApi extends React.Component {
 
   }
 }
-ReactDOM.render(<CompanyApi />, document.getElementById('app'));
+ReactDOM.render(<Table />, document.getElementById('app'));

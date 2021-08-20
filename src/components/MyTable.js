@@ -51,24 +51,23 @@ class Table extends React.Component {
       return (
         <div>
           <table id="users" border='1'>
-            <tbody>
+            <thead>
               <tr>
                 <td>ID</td>
                 <td>Title</td>
                 <td>BODY</td>
               </tr>
-  
-              {users.map(user => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.title}</td>
-                  <td>{user.body}</td>
+            </thead>
+            <tbody>
+              {users.map(({id,title,body}) => (
+                <tr key={id}>
+                  <td>{id}</td>
+                  <td>{title}</td>
+                  <td>{body}</td>
                 </tr>
               ))}
-  
             </tbody>
           </table>
-  
         </div>
       )
     }
