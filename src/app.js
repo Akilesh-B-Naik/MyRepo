@@ -2,84 +2,102 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'normalize.css/normalize.css'
 import './styles/Styles.scss';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
+toast.configure();
+import Table from './components/MyTable';
 
-import IndescisionApp from './components/IndecisionApp'
-
-
-
-class Table extends React.Component {
-
-  state =
-    {
-      users: [],
-      total: undefined,
-      pageNo: 1,
-      loading: false
-    }
-
+class Body extends React.Component {
+  state = {
+    results: [],
+    loading: false,
+    total: undefined
+  }
   componentDidMount() {
-    console.log("mount executed");
     this.getPosts();
     window.addEventListener("scroll", (event) => {
-      console.log("event listener executed");
-      console.log(document.body.scrollHeight);
-      console.log(window.innerHeight + window.scrollY);
-      if (document.body.scrollHeight - (window.innerHeight + window.scrollY) <= 30) {
+      if (document.body.scrollHeight - (window.innerHeight + window.scrollY) <= 40) {
         this.getPosts();
       }
     });
-  }
 
+  }
   getPosts = async () => {
-    console.log("get post executed")
-    const { pageNo, total, users, loading } = this.state;
+    const { results, loading, total } = this.state;
     if (loading) {
       return
     }
-    this.setState({ loading: true })
-    if (total === undefined || users.length < total) {
-      const val = await fetch('https://jsonplaceholder.typicode.com/posts?_page=' + pageNo)
-      const response = await val.json();
-      const totalCount = val.headers.get("x-total-count");
-
-      this.setState({
-        total: totalCount,
-        pageNo: pageNo + 1,
-        users: users.concat(response),
-        loading: false
+    this.setState({ loading: true });
+    if (total === undefined || results.length < total) {
+      const val = await fetch('https://tracxn.com/api/2.2/companies', {
+        method: "POST",
+        headers: {
+          "accessToken": "a7998d3c-8028-486d-8a29-50ceb39c636b",
+          "Content-Type": "application/json",
+          "X-Request-Source": "Akilesh Assignment Team-AppAqua"
+        },
+        body: JSON.stringify({
+          "filter": {
+            "country": ["India"],
+          },
+          "from": results.length,
+          "size": 20
+        })
       })
+     
+        if (!val.ok){
+        toast(`Something went wrong`);
+          return
+      }
+      const { total_count, result } = await val.json();
+      this.setState({ total: total_count, results: results.concat(result), loading: false });
     }
   }
+  
   render() {
-
-    const { users } = this.state;
-    //const val=this.state;
-    return (
-      <div>
-        <table id="users" border='1'>
-          <tbody>
-            <tr>
-              <td>ID</td>
-              <td>Title</td>
-              <td>BODY</td>
+    const { results} = this.state;
+    return (results.length>0 && (<div>
+      <table id="users" border='2'>
+        <thead>
+          <tr >
+            <th>Number</th>
+            <th>ID</th>
+            <th>Title</th>
+            <th>BODY</th>
+            <th>STATE</th>
+          </tr>
+        </thead>
+        <tbody>
+          {results.map(({ id, name, domain, location: { state } = {} }, index) =>
+            <tr key={index} >
+              <td>{index + 1}</td>
+              <td>{id}</td>
+              <td>{name}</td>
+              <td>{domain}</td>
+              <td>{state}</td>
             </tr>
+          )}
+        </tbody>
+      </table>
+      { }
+    </div>));
 
-            {users.map(user => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>{user.title}</td>
-                <td>{user.body}</td>
-              </tr>
-            ))}
+  }
+}
 
-          </tbody>
-        </table>
+const Header = (props) => (<div><h1>List Of Companies</h1></div>);
 
+class CompanyApi extends React.Component
+{
+  render()
+  {
+    return(
+      <div>
+          <Header />
+          <Body />
       </div>
     )
   }
 }
 
-
-
-ReactDOM.render(<Table />, document.getElementById('app'));
+ReactDOM.render(<CompanyApi />, document.getElementById('app'))
